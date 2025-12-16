@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"crud/internal/dto"
 	"crud/internal/service"
 	"crud/pkg/response"
 	"strconv"
@@ -27,15 +28,13 @@ func DeleteUser(context *gin.Context) {
 		response.Fail(context, err.Error())
 		return
 	}
-	response.Success(context, "删除成功")
+	response.Success(context, nil)
 }
 
 func UpdateUser(context *gin.Context) {
 	id, _ := strconv.Atoi(context.Param("id"))
 
-	var req struct {
-		Age int `json:"age"`
-	}
+	var req dto.UpdateUserRequest
 
 	_ = context.ShouldBindJSON(&req)
 
@@ -45,7 +44,7 @@ func UpdateUser(context *gin.Context) {
 		return
 	}
 
-	response.Success(context, "更新成功")
+	response.Success(context, nil)
 }
 
 func GetUserList(context *gin.Context) {
@@ -64,11 +63,7 @@ func GetUser(context *gin.Context) {
 }
 
 func CreateUser(context *gin.Context) {
-	var req struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-		Age      int    `json:"age"`
-	}
+	var req dto.CreateUserRequest
 
 	if err := context.ShouldBindJSON(&req); err != nil { //  ;分割变量初始化和条件判断  作用：变量的作用域只在if语句中，不会污染外部作用域
 		response.Fail(context, err.Error())
@@ -81,5 +76,5 @@ func CreateUser(context *gin.Context) {
 		return
 	}
 
-	response.Success(context, "创建成功")
+	response.Success(context, nil)
 }
