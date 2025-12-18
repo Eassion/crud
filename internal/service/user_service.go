@@ -3,8 +3,11 @@ package service
 import (
 	"crud/internal/dao"
 	"crud/internal/model"
+	"crud/pkg/cache"
 	"crud/pkg/password"
+	"encoding/json"
 	"errors"
+	"time"
 )
 
 func CreateUser(username, passwordStr string, age int) error {
@@ -27,7 +30,24 @@ func CreateUser(username, passwordStr string, age int) error {
 }
 
 func GetUser(id uint) (*model.User, error) {
-	return dao.GetUserByID(id)
+	//1.查redis
+	key := cache.UserKey(id)
+	val, err := cache.RDB.Get(cache.Ctx, key).Result()
+	if err == nil {
+		var user model.User
+		_ = json.Unmarshal([]byte(val), &user)
+		return &user, nil
+	}
+	//2.查数据库
+	user, err := dao.GetUserByID(id)
+	if err != nil {
+		return nil, err
+	}
+	//3.写入redis
+	bytes, _ := json.Marshal(user)
+	cache.RDB.Set(cache.Ctx, key, bytes, 5*time.Minute)
+
+	return user, nil
 }
 
 func GetUserList() ([]model.User, error) {
@@ -41,9 +61,21 @@ func UpdateUser(id uint, age int) error {
 	}
 
 	user.Age = age
-	return dao.UpdateUser(user)
+	if err := dao.UpdateUser(user); err != nil {
+		return err
+	}
+
+	//删除缓存
+	cache.RDB.Del(cache.Ctx, cache.UserKey(id))
+
+	return nil
 }
 
 func DeleteUser(id uint) error {
-	return dao.DeleteUser(id)
+	if err := dao.DeleteUser(id); err != nil {
+		return err
+	}
+
+	cache.RDB.Del(cache.Ctx, cache.UserKey(id))
+	return nil
 }
