@@ -3,6 +3,7 @@ package main
 import (
 	"crud/internal/controller"
 	"crud/internal/midware"
+	"crud/pkg/cache"
 	"crud/pkg/db"
 	"crud/pkg/response"
 
@@ -11,12 +12,15 @@ import (
 
 func main() {
 	db.InitDB()
+	cache.InitRedis()
 
 	//db.DB.AutoMigrate(&model.User{}) //自动建表
 
 	r := gin.Default()
 	//全局日志
 	r.Use(midware.Logger())
+	//登录接口
+	controller.RegisterAuthRoutes(r)
 	//公开接口
 	controller.RegisterUserRoutes(r)
 

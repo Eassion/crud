@@ -9,3 +9,8 @@ type CreateUserRequest struct {
 type UpdateUserRequest struct {
 	Age int `json:"age" binding:"required,gte=0,lte=150"`
 }
+
+type LoginRequest struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}

@@ -3,17 +3,23 @@ package service
 import (
 	"crud/internal/dao"
 	"crud/internal/model"
+	"crud/pkg/password"
 	"errors"
 )
 
-func CreateUser(username, password string, age int) error {
-	if username == "" || password == "" {
+func CreateUser(username, passwordStr string, age int) error {
+	if username == "" || passwordStr == "" {
 		return errors.New("用户名或密码不能为空")
+	}
+
+	hashPwd, err := password.HashPassword(passwordStr)
+	if err != nil {
+		return errors.New("密码加密失败")
 	}
 
 	user := &model.User{
 		Username: username,
-		Password: password,
+		Password: hashPwd,
 		Age:      age,
 	}
 

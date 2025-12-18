@@ -28,3 +28,9 @@ func UpdateUser(user *model.User) error {
 func DeleteUser(id uint) error {
 	return db.DB.Delete(&model.User{}, id).Error
 }
+
+func GetUserByUsername(username string) (*model.User, error) {
+	var user model.User
+	err := db.DB.Where("username = ?", username).First(&user).Error
+	return &user, err
+}
