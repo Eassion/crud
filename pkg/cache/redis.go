@@ -2,7 +2,10 @@ package cache
 
 import (
 	"context"
+	"fmt"
 	"log"
+
+	"crud/config"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -13,10 +16,12 @@ var (
 )
 
 func InitRedis() {
+	cfg := config.Conf.Redis
+
 	RDB = redis.NewClient(&redis.Options{
-		Addr:     "127.0.0.1:6379",
-		Password: "", // 有就填
-		DB:       0,
+		Addr:     fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
+		Password: cfg.Password,
+		DB:       cfg.DB,
 	})
 
 	if err := RDB.Ping(Ctx).Err(); err != nil {

@@ -1,17 +1,20 @@
 package main
 
 import (
+	"crud/config"
 	"crud/internal/controller"
 	"crud/internal/midware"
 	"crud/pkg/cache"
 	"crud/pkg/db"
 	"crud/pkg/response"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	db.InitDB()
+	config.InitConfig()
+	db.InitMySQL()
 	cache.InitRedis()
 
 	//db.DB.AutoMigrate(&model.User{}) //自动建表
@@ -38,5 +41,5 @@ func main() {
 		})
 	}
 
-	r.Run(":8080")
+	r.Run(fmt.Sprintf(":%d", config.Conf.Server.Port))
 }
